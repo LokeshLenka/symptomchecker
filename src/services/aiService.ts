@@ -1,22 +1,28 @@
 import { PatientData, AnalysisResult, Symptom, MedicalHistory, Medication } from "../types";
 
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
 
 export const analyzeSymptoms = async (
-  patientData: PatientData
+  patientData: PatientData,
+  apiKey?: string
 ): Promise<AnalysisResult> => {
   try {
+    // Get API key from parameter or environment variable
+    const effectiveApiKey = apiKey || import.meta.env.VITE_OPENROUTER_API_KEY;
+    
+    if (!effectiveApiKey) {
+      throw new Error("API key is required but not provided");
+    }
+
     const prompt = createEnhancedMedicalPrompt(patientData);
 
     const response = await fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization:
-          "Bearer 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",
-        "HTTP-Referer": "https://symptomchecker-3vr0.onrender.com", // change for production
-        "User-Agent": "symptom-checker-app",
+        "Authorization": `Bearer ${effectiveApiKey}`,
+        "HTTP-Referer": window.location.origin, // Use dynamic origin
+        "X-Title": "Medical Symptom Checker",
       },
       body: JSON.stringify({
         model: "deepseek/deepseek-r1-0528:free",
@@ -60,19 +66,20 @@ Response format (JSON only):
     console.log("🔍 Raw response from OpenRouter:", raw);
 
     if (!response.ok) {
-      throw new Error(`HTTP error: ${response.status}`);
+      const errorData = JSON.parse(raw);
+      throw new Error(`API Error ${response.status}: ${errorData.error?.message || 'Unknown error'}`);
     }
 
-    const json = JSON.parse(raw); // response must be valid JSON
+    const json = JSON.parse(raw);
     const content = json?.choices?.[0]?.message?.content?.trim();
 
     if (!content) throw new Error("Empty content from AI");
 
-    // ✂️ Clean extra formatting like ```json ... ```
+    // Clean extra formatting like ```json ... ```
     const cleaned = content.replace(/```json|```/g, "").trim();
     const parsed = JSON.parse(cleaned);
 
-    // ✅ Optional: basic schema check
+    // Basic schema validation
     if (
       !parsed.type ||
       !parsed.message ||
