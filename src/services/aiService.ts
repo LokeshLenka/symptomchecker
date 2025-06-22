@@ -19,7 +19,7 @@ export const analyzeSymptoms = async (
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${API_KEY}`,
+        Authorization: "Bearer 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",
         "HTTP-Referer": window.location.origin, // Use dynamic origin
         "User-Agent": "symptom-checker-app",
       },
