@@ -53,7 +53,10 @@ export interface Medication {
 export interface MedicalHistory {
   id: string;
   condition: string;
-  diagnosedDate: string;
+  description: string;
+  // diagnosedDate: string;
+  diagnosisDate: string;
+  // year?: string;
   status: "current" | "resolved" | "chronic";
   severity: "mild" | "moderate" | "severe";
   treatment?: string;
@@ -75,4 +78,15 @@ export interface ExtendedPatientData extends PatientData {
   medications: Medication[];
   medicalHistory: MedicalHistory[];
   notifications: NotificationReminder[];
+}
+
+export interface AnalysisResult {
+  type: "urgent" | "monitor" | "routine";
+  message: string;
+  recommendations: string[];
+  possibleConditions?: string[];
+  urgencyLevel: "low" | "medium" | "high";
+  medicationAlerts?: string[];
+  historyInsights?: string[];
+  disclaimer: string;
 }

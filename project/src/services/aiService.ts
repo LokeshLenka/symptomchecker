@@ -1,4 +1,4 @@
-import { PatientData, AnalysisResult } from "../types";
+import { PatientData, AnalysisResult, Symptom, MedicalHistory, Medication } from "../types";
 
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
@@ -7,7 +7,7 @@ export const analyzeSymptoms = async (
   patientData: PatientData
 ): Promise<AnalysisResult> => {
   try {
-    const prompt = createMedicalPrompt(patientData);
+    const prompt = createEnhancedMedicalPrompt(patientData);
 
     const response = await fetch(API_URL, {
       method: "POST",
@@ -105,13 +105,31 @@ Response format (JSON only):
   }
 };
 
-const createMedicalPrompt = (patientData: PatientData): string => {
-  const symptomsText = patientData.symptoms
-    .map(
-      (symptom) =>
-        `- ${symptom.description} (Severity: ${symptom.severity}/10, Duration: ${symptom.durationHours} hours, Location: ${symptom.location})`
-    )
-    .join("\n");
+// Define EnhancedPatientData locally for this file
+interface EnhancedPatientData extends PatientData {
+  medicalHistory?: MedicalHistory[];
+  medications?: Medication[];
+}
+
+const createEnhancedMedicalPrompt = (
+  patientData: EnhancedPatientData
+): string => {
+  const symptomsText = (patientData.symptoms || []).map(
+    (symptom: Symptom) =>
+      `- ${symptom.description} (Severity: ${symptom.severity}/10, Duration: ${symptom.durationHours} hours, Location: ${symptom.location || 'Not specified'})`
+  ).join("\n");
+
+  const medicalHistoryText = (patientData.medicalHistory && patientData.medicalHistory.length > 0)
+    ? patientData.medicalHistory.map(
+        h => `- ${h.condition} (${h.diagnosisDate || "Unknown"}) | Status: ${h.status || "Unknown"}, Severity: ${h.severity || "Unknown"}${h.treatment ? ", Treatment: " + h.treatment : ""}${h.notes ? ", Notes: " + h.notes : ""}${h.relatedSymptoms && h.relatedSymptoms.length > 0 ? ", Related Symptoms: " + h.relatedSymptoms.join(", ") : ""}`
+      ).join("\n")
+    : "No significant medical history reported";
+
+  const medicationsText = (patientData.medications && patientData.medications.length > 0)
+    ? patientData.medications.map(
+        m => `- ${m.name} ${m.dosage} (${m.frequency}) | Times: ${m.times && m.times.length > 0 ? m.times.join(", ") : "N/A"}, Start: ${m.startDate}${m.endDate ? ", End: " + m.endDate : ""}${m.notes ? ", Notes: " + m.notes : ""}, Active: ${m.isActive ? "Yes" : "No"}, Reminder: ${m.reminderEnabled ? "On" : "Off"}${m.lastTaken ? ", Last Taken: " + m.lastTaken : ""}`
+      ).join("\n")
+    : "No current medications reported";
 
   return `
 Analyze these patient symptoms and provide a medical assessment.
@@ -122,6 +140,12 @@ PATIENT DATA:
 
 SYMPTOMS:
 ${symptomsText}
+
+MEDICAL HISTORY:
+${medicalHistoryText}
+
+CURRENT MEDICATIONS:
+${medicationsText}
 
 ANALYSIS REQUIREMENTS:
 - Assess urgency level based on symptom severity and combination
