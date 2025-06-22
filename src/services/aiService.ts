@@ -7,7 +7,7 @@ export const analyzeSymptoms = async (
 ): Promise<AnalysisResult> => {
   try {
     // Get API key from environment variable
-    const API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
+    const API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || "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";
     
     if (!API_KEY) {
       throw new Error("API key is not configured. Please set VITE_OPENROUTER_API_KEY environment variable.");
@@ -19,7 +19,7 @@ export const analyzeSymptoms = async (
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer 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",
+        Authorization: `Bearer ${API_KEY}`,
         "HTTP-Referer": window.location.origin, // Use dynamic origin
         "User-Agent": "symptom-checker-app",
       },
