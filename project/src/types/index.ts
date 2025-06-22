@@ -14,11 +14,11 @@ export interface PatientData {
 }
 
 export interface AnalysisResult {
-  type: 'urgent' | 'monitor' | 'routine';
+  type: "urgent" | "monitor" | "routine";
   message: string;
   recommendations: string[];
   possibleConditions?: string[];
-  urgencyLevel: 'low' | 'medium' | 'high';
+  urgencyLevel: "low" | "medium" | "high";
   disclaimer: string;
 }
 
@@ -32,4 +32,47 @@ export interface SymptomTemplate {
 
 export interface OpenAIResponse {
   analysis: AnalysisResult;
+}
+
+// Add these new types to your existing types.ts file
+
+export interface Medication {
+  id: string;
+  name: string;
+  dosage: string;
+  frequency: "once" | "twice" | "thrice" | "four-times" | "as-needed";
+  times: string[]; // Array of times like ["08:00", "20:00"]
+  startDate: string;
+  endDate?: string;
+  notes?: string;
+  isActive: boolean;
+  reminderEnabled: boolean;
+  lastTaken?: string;
+}
+
+export interface MedicalHistory {
+  id: string;
+  condition: string;
+  diagnosedDate: string;
+  status: "current" | "resolved" | "chronic";
+  severity: "mild" | "moderate" | "severe";
+  treatment?: string;
+  notes?: string;
+  relatedSymptoms?: string[];
+}
+
+export interface NotificationReminder {
+  id: string;
+  medicationId: string;
+  medicationName: string;
+  scheduledTime: string;
+  isCompleted: boolean;
+  createdAt: string;
+}
+
+// Extend existing PatientData type
+export interface ExtendedPatientData extends PatientData {
+  medications: Medication[];
+  medicalHistory: MedicalHistory[];
+  notifications: NotificationReminder[];
 }

@@ -6,7 +6,7 @@ import { SymptomSelector } from "./components/SymptomSelector";
 import { SymptomCard } from "./components/SymptomCard";
 // import { ApiKeySetup } from "./components/ApiKeySetup";
 import { AnalysisResults } from "./components/AnalysisResults";
-import { analyzeSymptoms } from "./services/openaiService";
+import { analyzeSymptoms } from "./services/aiService";
 
 function App() {
   const [patientData, setPatientData] = useState<PatientData>({
@@ -217,7 +217,7 @@ function App() {
             </h1>
           </div>
           <p className="text-gray-600 text-lg">
-            Get AI-powered insights about your symptoms using OpenAI GPT-4
+            Get AI-powered insights about your symptoms using DeepSeek R1
           </p>
           <div className="mt-4 p-3 bg-yellow-100 border border-yellow-400 rounded-lg">
             <p className="text-yellow-800 text-sm">
@@ -410,7 +410,7 @@ function App() {
             advice.
           </p>
           <p className="mt-1">
-            This tool uses OpenAI GPT-4 for symptom analysis.
+            This tool uses DeepSeek: R1 0528 model for symptom analysis.
           </p>
         </div>
       </div>
