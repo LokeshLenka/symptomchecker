@@ -15,7 +15,7 @@ export const analyzeSymptoms = async (
         "Content-Type": "application/json",
         Authorization:
           "Bearer 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",
-        "HTTP-Referer": "http://localhost:5173", // change for production
+        "HTTP-Referer": "https://symptomchecker-3vr0.onrender.com", // change for production
         "User-Agent": "symptom-checker-app",
       },
       body: JSON.stringify({
